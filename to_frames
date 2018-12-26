@@ -1,0 +1,2 @@
+#!/bin/bash
+ffmpeg -i S1660003__0-00-02.mp4 reference_frames/output_%04d.png

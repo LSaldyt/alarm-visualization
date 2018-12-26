@@ -26,13 +26,14 @@ from PIL import Image
 
 images = []
 
-for i in range(1, 30):
+for i in range(1, 2635):
     frame = Image.open('frames/{}.png'.format(i))
-    images.append(frame)
+    images.append(frame.copy())
+    frame.close()
 
 # Save the frames as an animated GIF
 images[0].save('movie.gif',
                save_all=True,
                append_images=images[1:],
-               duration=20,
+               duration=50,
                loop=0)

@@ -4,7 +4,9 @@
 # Edited by Lucas Saldyt
 
 import pandas
+import numpy as np
 
+from matplotlib.transforms import Bbox
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -37,9 +39,12 @@ for index, row in alarmData.iterrows():
         source, dest = row['AlarmedFrom'], row['Alarmed']
         G.add_edge(source, dest)
 
+    bbox = Bbox(np.array([[0,0],[11,11]]))
+
     pos = nx.get_node_attributes(G, 'pos')
     nx.draw(G, pos, node_color=colorMap, node_size=10, cmap=plt.cm.Reds)
-    plt.savefig('frames/{}.png'.format(frame))
+    #nx.draw(G, pos, node_color=colorMap, node_size=10, cmap=plt.cm.Reds, with_labels=True, font_size=6, label_pos=1, font_color='o', bbox=bbox)
+    plt.savefig('frames/{}.png'.format(str(frame).rjust(4, '0')))
     plt.clf()
 
     print('{}/{}'.format(frame, alarmData.Frame.max()))

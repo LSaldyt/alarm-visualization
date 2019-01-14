@@ -13,21 +13,16 @@ import networkx as nx
 
 
 alarmData = pandas.read_csv('alarm_strengths.csv')
-physicalData = [item for item in pandas.read_csv('physical_data.csv').groupby('frames')]
+physicalData = pandas.read_csv('physical_data.csv')
 propagationData = pandas.read_csv('propagation.csv')
-
 
 for index, row in alarmData.iterrows():
     G = nx.Graph()
     colorMap = []
 
     frame = int(row['Frame'])
-    frameData = physicalData[frame][1]
-    interactions = propagationData[((propagationData.frame * 30 < frame)
-                                 & (((propagationData.frame + 1) * 30) > frame))]
-
-    img = mpimg.imread('reference_frames/output_{}.png'.format(str(frame).rjust(4, '0')))
-    plt.imshow(img)
+    frameData = physicalData[(physicalData.frames == frame)]
+    interactions = propagationData[(propagationData.frame == frame)]
 
     for i in range(1, 62):
         antData = frameData[(frameData.id == i)]
@@ -45,9 +40,8 @@ for index, row in alarmData.iterrows():
 
     pos = nx.get_node_attributes(G, 'pos')
     nx.draw(G, pos, node_color=colorMap, node_size=10, cmap=plt.cm.Reds)
-    plt.savefig('frames/{}.png'.format(str(frame).rjust(4, '0')))
+    #nx.draw(G, pos, node_color=colorMap, node_size=10, cmap=plt.cm.Reds, with_labels=True, font_size=6, label_pos=1, font_color='o', bbox=bbox)
+    plt.savefig('abstract_frames/{}.png'.format(str(frame).rjust(4, '0')))
     plt.clf()
 
     print('{}/{}'.format(frame, alarmData.Frame.max()))
-    if index == 300:
-        1/0

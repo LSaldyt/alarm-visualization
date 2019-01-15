@@ -23,8 +23,8 @@ for index, row in alarmData.iterrows():
 
     frame = int(row['Frame'])
     frameData = physicalData[frame][1]
-    interactions = propagationData[(((propagationData.frame - 1) * 30 < frame)
-                                 & (((propagationData.frame + 1) * 30) > frame))]
+    interactions = propagationData[(((propagationData.frame - 6) * 30 < frame)
+                                 & (((propagationData.frame - 3) * 30) > frame))]
 
     img = mpimg.imread('reference_frames/output_{}.png'.format(str(frame).rjust(4, '0')))
     plt.imshow(img)

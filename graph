@@ -31,8 +31,10 @@ for _, row in alarmData.iterrows(): # Go over data by rows
     frameData = physicalData[frame][1] 
     # Extract interactions that occur within a period relative to the current frame
     # Syncing occurs here. Right now it is set to the period (-2s, 0s) from the current frame
-    interactions = propagationData[(((propagationData.frame - 2) * 30 < frame)
-                                 & (((propagationData.frame) * 30) > frame))]
+    # interactions = propagationData[(((propagationData.frame - 2) * 30 < frame)
+    #                              & (((propagationData.frame) * 30) > frame))]
+    interactions = propagationData[(((propagationData.frame) * 30 < frame)
+                                 & (((propagationData.frame + 2) * 30) > frame))]
 
     # Load the background image for the frame and plot it
     img = mpimg.imread('reference_frames/output_{}.png'.format(str(frame).rjust(4, '0')))
@@ -58,7 +60,8 @@ for _, row in alarmData.iterrows(): # Go over data by rows
         source, dest = row['AlarmedFrom'], row['Alarmed']
         if not row['Self-Excitation']:
             # Add edges to the graph representing an interaction
-            G.add_edge(source, dest)
+            #G.add_edge(source, dest)
+            pass
 
     # Create a bounding box for the plot
     #bbox = Bbox(np.array([[0,0],[11,11]]))

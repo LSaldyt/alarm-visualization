@@ -1,2 +1,2 @@
 #!/bin/bash
-sxiv -a movie.gif
+sxiv -a movie.

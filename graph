@@ -3,49 +3,70 @@
 # Original Author: Aric Hagberg (hagberg@lanl.gov)
 # Edited by Lucas Saldyt
 
+# Data processing libraries
 import pandas
 import numpy as np
 
+# Plotting library
 from matplotlib.transforms import Bbox
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
+# Graph plotting library
 import networkx as nx
 
-
-alarmData = pandas.read_csv('alarm_strengths.csv')
-physicalData = [item for item in pandas.read_csv('physical_data.csv').groupby('frames')]
+# Load three separate CSV files as pandas dataframes.
+alarmData       = pandas.read_csv('alarm_strengths.csv')
+# Organize physical data by frames
+physicalData    = [item for item in pandas.read_csv('physical_data.csv').groupby('frames')]
 propagationData = pandas.read_csv('propogation_new.csv')
 
-
-for index, row in alarmData.iterrows():
-    G = nx.Graph()
+# Iterate over alarmData (alarm_strengths.csv)
+for _, row in alarmData.iterrows(): # Go over data by rows
+    G = nx.Graph() # Initialize a graph to overlay on the video
     colorMap = []
 
-    frame = int(row['Frame'])
-    frameData = physicalData[frame][1]
-    interactions = propagationData[(((propagationData.frame - 6) * 30 < frame)
-                                 & (((propagationData.frame - 3) * 30) > frame))]
+    # Extract the current frame from the row of data
+    frame = int(row['Frame']) 
+    # Extract positional information for the current frame
+    frameData = physicalData[frame][1] 
+    # Extract interactions that occur within a period relative to the current frame
+    # Syncing occurs here. Right now it is set to the period (-2s, 0s) from the current frame
+    interactions = propagationData[(((propagationData.frame - 2) * 30 < frame)
+                                 & (((propagationData.frame) * 30) > frame))]
 
+    # Load the background image for the frame and plot it
     img = mpimg.imread('reference_frames/output_{}.png'.format(str(frame).rjust(4, '0')))
     plt.imshow(img)
 
+    # Loop over each ant
     for i in range(1, 62):
+        # Extract physical ant data
         antData = frameData[(frameData.id == i)]
+        # Extract position
         x = float(antData['locX'])
         y = float(antData['locY'])
+        # Add ant position to current graph
         G.add_node(i, pos=(x, y), label=str(i))
+        # Extract alarm strength
         alarm_strength = row['V' + str(i)]
+        # Colorize the currrent ant based on alarm strength
         colorMap.append(alarm_strength)
 
+    # Loop over interactions that occur in the active period
     for index, row in interactions.iterrows():
+        # Extract..
         source, dest = row['AlarmedFrom'], row['Alarmed']
         if not row['Self-Excitation']:
+            # Add edges to the graph representing an interaction
             G.add_edge(source, dest)
 
+    # Create a bounding box for the plot
     bbox = Bbox(np.array([[0,0],[11,11]]))
 
     pos = nx.get_node_attributes(G, 'pos')
-    nx.draw(G, pos, node_color=colorMap, node_size=10, cmap=plt.cm.Reds, with_labels=True, font_size=10)
+    # Draw the graph on top of the background
+    nx.draw(G, pos, node_color=colorMap, node_size=25, cmap=plt.cm.Reds, with_labels=True, font_size=8)
+    # Save the frame-image and clear the plot
     plt.savefig('frames/{}.png'.format(str(frame).rjust(4, '0')))
     plt.clf()
 

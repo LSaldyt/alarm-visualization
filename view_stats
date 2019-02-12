@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+
+import subprocess
+import pstats
+from pstats import SortKey
+
+#subprocess.call('python -m cProfile -o profile.out graph', shell=True)
+
+p = pstats.Stats('profile.out')
+#p.strip_dirs().sort_stats(-1).print_stats()
+p.strip_dirs().sort_stats(SortKey.CUMULATIVE).print_stats(100)

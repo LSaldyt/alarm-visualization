@@ -8,7 +8,7 @@ import pandas
 import numpy as np
 
 # Plotting library
-from matplotlib.transforms import Bbox
+#from matplotlib.transforms import Bbox
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 # Graph plotting library
@@ -61,7 +61,7 @@ for _, row in alarmData.iterrows(): # Go over data by rows
             G.add_edge(source, dest)
 
     # Create a bounding box for the plot
-    bbox = Bbox(np.array([[0,0],[11,11]]))
+    #bbox = Bbox(np.array([[0,0],[11,11]]))
 
     pos = nx.get_node_attributes(G, 'pos')
     # Draw the graph on top of the background

@@ -81,5 +81,6 @@ for _, row in alarmData.iterrows(): # Go over data by rows
     # Save the frame-image and clear the plot
     fig.savefig('frames/{}.png'.format(str(frame).rjust(4, '0')), dpi=300)
     fig.clf()
+    del img
 
     print('{}/{}'.format(frame, alarmData.Frame.max()))

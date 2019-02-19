@@ -14,6 +14,5 @@ for i, row in rows:
     window = [series for index, series in window]
     averages = sum(window) / len(window)
     alarmData.loc[i] = averages
-    print(i)
 
-print(alarmData)
+alarmData.to_csv('smoothed_alarm_strengths.csv')

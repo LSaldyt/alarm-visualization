@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-
-# Original Author: Aric Hagberg (hagberg@lanl.gov)
-# Edited by Lucas Saldyt
+# Lucas Saldyt 2019
 
 # Data processing libraries
 import pandas
@@ -14,6 +12,8 @@ import matplotlib.pyplot as plt
 # Graph plotting library
 import networkx as nx
 
+import seaborn as sns
+
 # Load three separate CSV files as pandas dataframes.
 alarmData       = pandas.read_csv('alarm_strengths.csv')
 # Organize physical data by frames
@@ -23,11 +23,12 @@ propagationData = pandas.read_csv('propogation_new.csv')
 # Iterate over alarmData (alarm_strengths.csv)
 for _, row in alarmData.iterrows(): # Go over data by rows
     # Some SO code that makes the image fullscreen when plotted
-    fig = plt.figure(frameon=False)
-    #fig.set_size_inches(10,10)
-    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    #fig = plt.figure(frameon=False, figsize=(10, 10))
+    fig, ax = plt.subplots(frameon=False)
+    #fig, (ax, ax2) = plt.subplots(ncols=2, frameon=False)
+    ax2 = fig.add_axes(ax.get_position(), frameon=False)
     ax.set_axis_off()
-    fig.add_axes(ax)
+    #fig.add_axes(ax)
     
     # Initialize a graph to overlay on the video
     G = nx.Graph()
@@ -44,10 +45,16 @@ for _, row in alarmData.iterrows(): # Go over data by rows
     interactions = propagationData[(((propagationData.frame) * 30 < frame)
                                  & (((propagationData.frame + 2) * 30) > frame))]
 
+
     # Load the background image for the frame and plot it
     img = mpimg.imread('reference_frames/output_{}.png'.format(str(frame).rjust(4, '0')))
-    #ax.imshow(img, aspect='equal')
     ax.imshow(img, aspect='equal')
+    ax2.set_xlim(0.0, 1.0)
+    ax2.set_ylim(0.0, 1.0)
+    ax2 = sns.distplot(row, kde=True, rug=True, hist=False)
+    ax2.set_xlabel('Alarm strength')
+    ax2.set_ylabel('Proportion')
+    #plt.show()
 
     # Loop over each ant
     for i in range(1, 62):
@@ -77,10 +84,10 @@ for _, row in alarmData.iterrows(): # Go over data by rows
 
     pos = nx.get_node_attributes(G, 'pos')
     # Draw the graph on top of the background
-    nx.draw(G, pos, node_color=colorMap, node_size=25, cmap=plt.cm.Reds, with_labels=True, font_size=8)
+    nx.draw(G, pos, ax=ax, node_color=colorMap, node_size=25, cmap=plt.cm.Reds, with_labels=True, font_size=12)
+
     # Save the frame-image and clear the plot
     fig.savefig('frames/{}.png'.format(str(frame).rjust(4, '0')), dpi=300)
     fig.clf()
     del img
-
     print('{}/{}'.format(frame, alarmData.Frame.max()))

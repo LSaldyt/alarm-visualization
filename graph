@@ -27,7 +27,7 @@ for index, row in alarmData.iterrows(): # Go over data by rows
     #fig = plt.figure(frameon=False, figsize=(10, 10))
     fig, ax = plt.subplots(frameon=False)
     #fig, (ax, ax2) = plt.subplots(ncols=2, frameon=False)
-    ax2 = fig.add_axes(ax.get_position(), frameon=False)
+    #ax2 = fig.add_axes(ax.get_position(), frameon=False)
     ax.set_axis_off()
     #fig.add_axes(ax)
     
@@ -50,14 +50,14 @@ for index, row in alarmData.iterrows(): # Go over data by rows
     # Load the background image for the frame and plot it
     img = mpimg.imread('reference_frames/output_{}.png'.format(str(frame).rjust(4, '0')))
     ax.imshow(img, aspect='equal')
-    ax2.set_xlim(0.0, 1.0)
-    ax2.set_ylim(0.0, 2.0)
-    ax2 = sns.distplot(row, kde=True, rug=True, hist=True, norm_hist=True,
-             bins = [0.0, 0.305, 0.749, 1.0],
-             hist_kws={"lw":3, "edgecolor": (1,0.3,0.1,0.6),
-                 "color":(1,0.3,0.1,0.1),"alpha":None, "density":1.0})
-    ax2.set_xlabel('Alarm strength')
-    ax2.set_ylabel('Density')
+    #ax2.set_xlim(0.0, 1.0)
+    #ax2.set_ylim(0.0, 2.0)
+    #ax2 = sns.distplot(row, kde=True, rug=True, hist=True, norm_hist=True,
+    #         bins = [0.0, 0.305, 0.749, 1.0],
+    #         hist_kws={"lw":3, "edgecolor": (1,0.3,0.1,0.6),
+    #             "color":(1,0.3,0.1,0.1),"alpha":None, "density":1.0})
+    #ax2.set_xlabel('Alarm strength')
+    #ax2.set_ylabel('Density')
 
     # Loop over each ant
     for i in range(1, 62):

@@ -63,7 +63,8 @@ def create_graph():
     return G, colors, legend_handles
 
 def visualize(G, colors, legend_handles):
-    pos=graphviz_layout(G, prog='neato', args='')
+    # dot, neato, fdp, sfdp, twopi, circo: see https://www.graphviz.org/
+    pos=graphviz_layout(G, prog='dot', args='')
     #plt.figure(figsize=(8,8))
     plt.title('Alarm signal propagation from three source ants')
     nx.draw(G, pos, node_size=350, font_size=12, alpha=0.9, node_color=colors, with_labels=True, arrows=True)

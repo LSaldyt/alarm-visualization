@@ -90,7 +90,7 @@ for index, row in alarmData.iterrows(): # Go over data by rows
     nx.draw(G, pos, ax=ax, node_color=colorMap, node_size=25, cmap=plt.cm.Reds, with_labels=True, font_size=12)
 
     # Save the frame-image and clear the plot
-    fig.savefig('frames/{}.png'.format(str(frame).rjust(4, '0')), dpi=80)
+    fig.savefig('frames/{}.png'.format(str(frame).rjust(4, '0')), dpi=300)
     fig.clf()
     del img
     print('{}/{}'.format(frame, alarmData.Frame.max()))

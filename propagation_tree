@@ -13,7 +13,7 @@ except ImportError:
 
 
 def create_graph():
-    propagationData = pandas.read_csv('propogation_new.csv')
+    propagationData = pandas.read_csv('UpdatedPropagationRecords.csv')
 
     G = nx.DiGraph()
     colors = []
@@ -45,11 +45,11 @@ def create_graph():
 
     for index, row in propagationData.iterrows():
         source, dest = row['AlarmedFrom'], row['Alarmed']
-        if row['Time'] == 1:
+        if row['TimeForAlarm'] == 1:
             time_color = time_colors[0]
         else:
-            time_color = time_colors[min(row['Time'], len(time_colors) - 1)]
-            #time_color = (1.0, max(min(0.7, (row['Time']) / 5), 0.2), 0.1)
+            time_color = time_colors[min(row['TimeForAlarm'], len(time_colors) - 1)]
+            #time_color = (1.0, max(min(0.7, (row['TimeForAlarm']) / 5), 0.2), 0.1)
         if not row['Self-Excitation']:
             add(source, time_color)
             add(dest,   time_color)

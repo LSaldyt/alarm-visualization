@@ -7,7 +7,6 @@ import pandas
 
 try:
     from networkx.drawing.nx_agraph import graphviz_layout
-    #from networkx import graphviz_layout
 except ImportError:
     raise ImportError("This example needs Graphviz and either PyGraphviz or Pydot")
 
@@ -18,8 +17,10 @@ def create_graph():
     G = nx.DiGraph()
     colors = []
     legend_handles = []
+    edge_labels = dict()
 
     seen = set()
+    received = set()
 
     def add(node, color, label=None):
         if node not in seen:
@@ -27,48 +28,52 @@ def create_graph():
             colors.append(color)
             seen.add(node)
 
+    time_window = 2 # in seconds
+    windows = 5
     time_colors = [(r/255, g/255, b/255) 
                    for r, g, b in
-                   [(178, 2, 0),
-                    (255, 55, 33),
-                    (255, 88, 32),
-                    (255, 139, 32),
-                    (255, 173, 32)]]
+                   [(178, 2, 0)] + [(255, int(x * (200 / windows)), 32) for x in range(windows)]]
     self_excite_color = (235/255, 135/255, 255/255)
     passive_color = (0.3, 0.5, 1.0)
 
-    legend_handles.append(Patch(color=time_colors[0], label='Source ant'))
-    legend_handles.append(Patch(color=time_colors[-1], label='Terminal ant'))
+    for i, color in enumerate(time_colors):
+        label = str(int(i * time_window)) + ' seconds'
+        if i == len(time_colors) - 1:
+            label += ' or more'
+        legend_handles.append(Patch(color=color, label=label))
 
     legend_handles.append(Patch(color=self_excite_color, label='Independent Excitement'))
     legend_handles.append(Patch(color=passive_color, label='Passive'))
 
     for index, row in propagationData.iterrows():
         source, dest = row['AlarmedFrom'], row['Alarmed']
-        if row['TimeForAlarm'] == 1:
-            time_color = time_colors[0]
-        else:
-            time_color = time_colors[min(row['TimeForAlarm'], len(time_colors) - 1)]
-            #time_color = (1.0, max(min(0.7, (row['TimeForAlarm']) / 5), 0.2), 0.1)
+        time = row['TimeForAlarm']
+        time_color = time_colors[min((time // time_window), len(time_colors) - 1)]
         if not row['Self-Excitation']:
             add(source, time_color)
             add(dest,   time_color)
-            G.add_edge(source, dest)
-        else:
+            if dest not in received:
+                G.add_edge(source, dest)
+                edge_labels[(source, dest)] = str(time) + 's'
+            received.add(dest)
+        elif source not in received:
             add(source, self_excite_color, label=(str(source) + '!'))
+            received.add(source)
     for i in range(61):
         if i not in seen:
             add(i, passive_color, label=(str(source) + '!'))
     print(colors)
-    return G, colors, legend_handles
+    return G, colors, legend_handles, edge_labels
 
-def visualize(G, colors, legend_handles):
+def visualize(G, colors, legend_handles, edge_labels):
     # dot, neato, fdp, sfdp, twopi, circo: see https://www.graphviz.org/
-    pos=graphviz_layout(G, prog='dot', args='')
+    pos=graphviz_layout(G, prog='twopi', args='')
     #plt.figure(figsize=(8,8))
     plt.title('Alarm signal propagation from three source ants')
     nx.draw(G, pos, node_size=350, font_size=12, alpha=0.9, node_color=colors, with_labels=True, arrows=True)
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10)
     plt.legend(handles=legend_handles)
+    plt.axis('off')
     plt.savefig('circular_tree.png')
     plt.show()
 

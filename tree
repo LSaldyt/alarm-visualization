@@ -10,6 +10,9 @@ try:
 except ImportError:
     raise ImportError("This example needs Graphviz and either PyGraphviz or Pydot")
 
+original = {17, 19, 25}
+
+original_color = (131/255, 1.0, 66/255)
 
 def create_graph():
     propagationData = pandas.read_csv('UpdatedPropagationRecords.csv')
@@ -44,22 +47,29 @@ def create_graph():
 
     legend_handles.append(Patch(color=self_excite_color, label='Independent Excitement'))
     legend_handles.append(Patch(color=passive_color, label='Passive'))
+    legend_handles.append(Patch(color=original_color, label='Original'))
 
     for index, row in propagationData.iterrows():
         source, dest = row['AlarmedFrom'], row['Alarmed']
         time = row['TimeForAlarm']
         time_color = time_colors[min((time // time_window), len(time_colors) - 1)]
         if not row['Self-Excitation']:
-            add(source, time_color)
+            if source in original:
+                add(source, original_color)
+            else:
+                add(source, time_color)
             add(dest,   time_color)
             if dest not in received:
                 G.add_edge(source, dest)
                 edge_labels[(source, dest)] = str(time) + 's'
             received.add(dest)
         elif source not in received:
-            add(source, self_excite_color, label=(str(source) + '!'))
+            if source in original:
+                add(source, original_color, label=(str(source) + '!'))
+            else:
+                add(source, self_excite_color, label=(str(source) + '!'))
             received.add(source)
-    for i in range(61):
+    for i in range(1, 62):
         if i not in seen:
             add(i, passive_color, label=(str(source) + '!'))
     print(colors)
@@ -68,7 +78,7 @@ def create_graph():
 def visualize(G, colors, legend_handles, edge_labels):
     # dot, neato, fdp, sfdp, twopi, circo: see https://www.graphviz.org/
     pos=graphviz_layout(G, prog='twopi', args='')
-    #plt.figure(figsize=(8,8))
+    plt.figure(figsize=(12,8))
     plt.title('Alarm signal propagation from three source ants')
     nx.draw(G, pos, node_size=350, font_size=12, alpha=0.9, node_color=colors, with_labels=True, arrows=True)
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10)

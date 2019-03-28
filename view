@@ -1,2 +1,3 @@
 #!/bin/bash
-sxiv -a movie.
+./to_video
+sxiv -a movie.mp4

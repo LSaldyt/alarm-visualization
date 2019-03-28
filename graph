@@ -19,7 +19,7 @@ import seaborn as sns
 alarmData       = pandas.read_csv('smoothed_alarm_strengths.csv')
 # Organize physical data by frames
 physicalData    = [item for item in pandas.read_csv('physical_data.csv').groupby('frames')]
-propagationData = pandas.read_csv('propogation_new.csv')
+propagationData = pandas.read_csv('UpdatedPropagationRecords.csv')
 
 # Iterate over alarmData (alarm_strengths.csv)
 for index, row in alarmData.iterrows(): # Go over data by rows
@@ -43,21 +43,13 @@ for index, row in alarmData.iterrows(): # Go over data by rows
     # Syncing occurs here. Right now it is set to the period (-2s, 0s) from the current frame
     # interactions = propagationData[(((propagationData.frame - 2) * 30 < frame)
     #                              & (((propagationData.frame) * 30) > frame))]
-    interactions = propagationData[(((propagationData.frame) * 30 < frame)
-                                 & (((propagationData.frame + 2) * 30) > frame))]
+    interactions = propagationData[(((propagationData.TimeForAlarm - propagationData.TimeDelay + 4) * 30 < frame)
+                                 & (((propagationData.TimeForAlarm - propagationData.TimeDelay + 6) * 30) > frame))]
 
 
     # Load the background image for the frame and plot it
     img = mpimg.imread('reference_frames/output_{}.png'.format(str(frame).rjust(4, '0')))
     ax.imshow(img, aspect='equal')
-    #ax2.set_xlim(0.0, 1.0)
-    #ax2.set_ylim(0.0, 2.0)
-    #ax2 = sns.distplot(row, kde=True, rug=True, hist=True, norm_hist=True,
-    #         bins = [0.0, 0.305, 0.749, 1.0],
-    #         hist_kws={"lw":3, "edgecolor": (1,0.3,0.1,0.6),
-    #             "color":(1,0.3,0.1,0.1),"alpha":None, "density":1.0})
-    #ax2.set_xlabel('Alarm strength')
-    #ax2.set_ylabel('Density')
 
     # Loop over each ant
     for i in range(1, 62):
@@ -79,8 +71,7 @@ for index, row in alarmData.iterrows(): # Go over data by rows
         source, dest = row['AlarmedFrom'], row['Alarmed']
         if not row['Self-Excitation']:
             # Add edges to the graph representing an interaction
-            #G.add_edge(source, dest)
-            pass
+            G.add_edge(source, dest)
 
     # Create a bounding box for the plot
     #bbox = Bbox(np.array([[0,0],[11,11]]))
@@ -90,7 +81,9 @@ for index, row in alarmData.iterrows(): # Go over data by rows
     nx.draw(G, pos, ax=ax, node_color=colorMap, node_size=25, cmap=plt.cm.Reds, with_labels=True, font_size=12)
 
     # Save the frame-image and clear the plot
-    fig.savefig('frames/{}.png'.format(str(frame).rjust(4, '0')), dpi=300)
+    fig.savefig('frames/{}.png'.format(str(frame).rjust(4, '0')), dpi=50)
     fig.clf()
     del img
     print('{}/{}'.format(frame, alarmData.Frame.max()))
+    if frame == 600:
+        break

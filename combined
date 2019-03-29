@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+
+
+read_from = lambda d, frame : mpimg.imread('{}frames/{}.png'.format(d, str(frame).rjust(4, '0')))
+
+for frame in range(600):
+    try:
+        fig, (a, b, c) = plt.subplots(nrows=1, ncols=3)
+        img = read_from('distribution_', frame)
+        a.imshow(img, aspect='equal')
+        a.axis('off')
+        img = read_from('abstract_', frame)
+        b.imshow(img, aspect='equal')
+        b.axis('off')
+        img = read_from('', frame)
+        c.imshow(img, aspect='equal')
+        c.axis('off')
+        dpi = 400
+        plt.tight_layout()
+        plt.savefig('combined_frames/{}.png'.format(str(frame).rjust(4, '0')), dpi=dpi, 
+                #bbox_inches='tight', 
+                figsize=(2400/dpi, 800/dpi))
+        plt.clf()
+        print(frame)
+    except KeyboardInterrupt:
+        raise
+    except:
+        pass

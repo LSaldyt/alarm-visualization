@@ -33,7 +33,7 @@ def create_graph():
 
     time_window = 2 # in seconds
     windows = 5
-    time_colors = [(r/255, g/255, b/255) 
+    time_colors = [(r/255, g/255, b/255)
                    for r, g, b in
                    [(178, 2, 0)] + [(255, int(x * (200 / windows)), 32) for x in range(windows)]]
     self_excite_color = (235/255, 135/255, 255/255)

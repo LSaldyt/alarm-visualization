@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+from  matplotlib.patches import Patch
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+import pandas
+
+calm_color = (66/255, 134/255, 1.0)
+alert_color = (239/255, 165/255, 62/255)
+alarm_color = (178/255, 54/255, 32/255)
+
+alarmData = pandas.read_csv('smoothed_alarm_strengths.csv')
+
+def visualize():
+    for second in range(163):
+        alarmSecondData = alarmData[(alarmData.Frame < (second + 1) * 30) & (alarmData.Frame > (second) * 30)]
+        for frame in range(29):
+            alarmFrameData = list(alarmSecondData.iloc[frame])
+            alarmed = [x for x in alarmFrameData if x > .74]
+            alert   = [x for x in alarmFrameData if x <= .74 and x > .35]
+            calm    = [x for x in alarmFrameData if x <= .35]
+            fig, ax = plt.subplots()
+            kwargs = dict(bins=30, kde=True, rug=True, ax=ax)
+            sns.distplot(alarmed, color=alarm_color, **kwargs)
+            sns.distplot(alert,   color=alert_color, **kwargs)
+            sns.distplot(calm,    color=calm_color,  **kwargs)
+            ax.set_title('Alarm Distribution')
+            ax.set_xlim((0, 1))
+            ax.set_ylim((0, 61))
+            ax.set_xlabel('Alarm Strength')
+            ax.set_ylabel('Count')
+            #plt.show()
+            plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
+                    hspace = 0, wspace = 0)
+            plt.margins(0, 0)
+            print(second * 30 + frame)
+            plt.savefig('distribution_frames/{}.png'.format(str(second * 30 + frame).rjust(4, '0')), dpi=300, bbox_inches='tight', pad_inches=0)
+            plt.clf()
+
+visualize()

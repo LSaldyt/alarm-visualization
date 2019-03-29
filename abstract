@@ -2,6 +2,9 @@
 from  matplotlib.patches import Patch
 import networkx as nx
 import matplotlib.pyplot as plt
+from matplotlib.ticker import NullLocator
+
+from tree import create_graph as original_tree
 
 try:
     from networkx.drawing.nx_agraph import graphviz_layout
@@ -20,29 +23,48 @@ time_colors = [(r/255, g/255, b/255)
                for r, g, b in
                [(178, 2, 0)] + [(255, int(x * (200 / windows)), 32) for x in range(windows)]]
 
+tracked = set()
+tracked.update(original)
+
 def visualize():
+    pos = graphviz_layout(original_tree()[0], prog='twopi', args='')
     for second in range(163):
-        interactions = propagationData[(propagationData.TimeForAlarm == second)]
+        interactions = propagationData[(propagationData.TimeForAlarm <= second)]
         alarmSecondData = alarmData[(alarmData.Frame < (second + 1) * 30) & (alarmData.Frame > (second) * 30)]
         for frame in range(29):
             alarmFrameData = alarmSecondData.iloc[frame]
             G = nx.DiGraph()
             colorMap = []
+            labelDict = {}
             alarmedAnts = [(i, alarmFrameData['V' + str(i)]) for i in range(1, 62)]
             alarmedAnts = sorted(alarmedAnts, key=lambda t : t[1])
-            for i, strength in alarmedAnts:
-                G.add_node(i, label=str(i))
-                colorMap.append(strength)
             for index, row in interactions.iterrows():
                 source, dest = row['AlarmedFrom'], row['Alarmed']
                 if not row['Self-Excitation']:
                     G.add_edge(source, dest)
+                tracked.add(source)
+                tracked.add(dest)
+            for i, strength in alarmedAnts:
+                label = str(i)
+                #if i in tracked:
+                #    label = str(i)
+                #else:
+                #    label = ''
+                labelDict[i] = label
+                G.add_node(i)
+                colorMap.append(strength)
             # dot, neato, fdp, sfdp, twopi, circo: see https://www.graphviz.org/
-            pos=graphviz_layout(G, prog='circo', args='')
-            nx.draw(G, pos, node_color=colorMap, node_size=200, cmap=plt.cm.Reds, with_labels=True, font_size=11)
-            #plt.show()
+            #pos=graphviz_layout(G, prog='circo', args='')
+            plt.axis('off')
+            plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
+                    hspace = 0, wspace = 0)
+            plt.margins(0, 0)
+            plt.gca().xaxis.set_major_locator(NullLocator())
+            plt.gca().yaxis.set_major_locator(NullLocator())
+
+            nx.draw(G, pos, node_color=colorMap, node_size=200, cmap=plt.cm.Reds_r, labels=labelDict, font_size=11)
             print(second * 30 + frame)
-            plt.savefig('abstract_frames/{}.png'.format(str(second * 30 + frame).rjust(4, '0')), dpi=300)
+            plt.savefig('abstract_frames/{}.png'.format(str(second * 30 + frame).rjust(4, '0')), dpi=300, bbox_inches='tight', pad_inches=0)
             plt.clf()
 
 visualize()

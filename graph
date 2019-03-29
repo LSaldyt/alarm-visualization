@@ -9,10 +9,13 @@ import numpy as np
 #from matplotlib.transforms import Bbox
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
+from matplotlib.ticker import NullLocator
 # Graph plotting library
 import networkx as nx
 
 import seaborn as sns
+
+original = {17, 19, 25}
 
 # Load three separate CSV files as pandas dataframes.
 #alarmData       = pandas.read_csv('alarm_strengths.csv')
@@ -61,7 +64,10 @@ for index, row in alarmData.iterrows(): # Go over data by rows
         # Add ant position to current graph
         G.add_node(i, pos=(x, y), label=str(i))
         # Extract alarm strength
-        alarm_strength = row['V' + str(i)]
+        if i in original:
+            alarm_strength = 1.0
+        else:
+            alarm_strength = row['V' + str(i)]
         # Colorize the currrent ant based on alarm strength
         colorMap.append(alarm_strength)
 
@@ -78,10 +84,17 @@ for index, row in alarmData.iterrows(): # Go over data by rows
 
     pos = nx.get_node_attributes(G, 'pos')
     # Draw the graph on top of the background
-    nx.draw(G, pos, ax=ax, node_color=colorMap, node_size=25, cmap=plt.cm.Reds, with_labels=True, font_size=12)
+    nx.draw(G, pos, ax=ax, node_color=colorMap, node_size=25, cmap=plt.cm.Reds_r, with_labels=True, font_size=12)
 
     # Save the frame-image and clear the plot
-    fig.savefig('frames/{}.png'.format(str(frame).rjust(4, '0')), dpi=50)
+    plt.axis('off')
+    plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
+            hspace = 0, wspace = 0)
+    plt.margins(0, 0)
+    plt.gca().xaxis.set_major_locator(NullLocator())
+    plt.gca().yaxis.set_major_locator(NullLocator())
+
+    fig.savefig('frames/{}.png'.format(str(frame).rjust(4, '0')), dpi=300, bbox_inches='tight', pad_inches=0)
     fig.clf()
     del img
     print('{}/{}'.format(frame, alarmData.Frame.max()))

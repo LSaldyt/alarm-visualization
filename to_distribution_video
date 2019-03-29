@@ -1,0 +1,4 @@
+#!/bin/bash
+
+ffmpeg -framerate 5 -pattern_type glob -i 'distribution_frames/*.png' \
+  -c:v libx264 -r 5 -pix_fmt yuv420p distribution.mp4

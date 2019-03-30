@@ -27,12 +27,8 @@ propagationData = pandas.read_csv('UpdatedPropagationRecords.csv')
 # Iterate over alarmData (alarm_strengths.csv)
 for index, row in alarmData.iterrows(): # Go over data by rows
     # Some SO code that makes the image fullscreen when plotted
-    #fig = plt.figure(frameon=False, figsize=(10, 10))
     fig, ax = plt.subplots(frameon=False)
-    #fig, (ax, ax2) = plt.subplots(ncols=2, frameon=False)
-    #ax2 = fig.add_axes(ax.get_position(), frameon=False)
     ax.set_axis_off()
-    #fig.add_axes(ax)
     
     # Initialize a graph to overlay on the video
     G = nx.Graph()
@@ -42,17 +38,12 @@ for index, row in alarmData.iterrows(): # Go over data by rows
     frame = int(row['Frame']) 
     # Extract positional information for the current frame
     frameData = physicalData[frame][1] 
-    # Extract interactions that occur within a period relative to the current frame
-    # Syncing occurs here. Right now it is set to the period (-2s, 0s) from the current frame
-    # interactions = propagationData[(((propagationData.frame - 2) * 30 < frame)
-    #                              & (((propagationData.frame) * 30) > frame))]
-    interactions = propagationData[(((propagationData.TimeForAlarm - propagationData.TimeDelay + 4) * 30 < frame)
-                                 & (((propagationData.TimeForAlarm - propagationData.TimeDelay + 6) * 30) > frame))]
-
-
     # Load the background image for the frame and plot it
     img = mpimg.imread('reference_frames/output_{}.png'.format(str(frame).rjust(4, '0')))
     ax.imshow(img, aspect='equal')
+
+    whiteLabels = dict()
+    blackLabels = dict()
 
     # Loop over each ant
     for i in range(1, 62):
@@ -62,29 +53,26 @@ for index, row in alarmData.iterrows(): # Go over data by rows
         x = float(antData['locX'])
         y = float(antData['locY'])
         # Add ant position to current graph
-        G.add_node(i, pos=(x, y), label=str(i))
+        G.add_node(i, pos=(x, y))
         # Extract alarm strength
         if i in original:
             alarm_strength = 1.0
         else:
             alarm_strength = row['V' + str(i)]
+
+        if alarm_strength > 0.5:
+            whiteLabels[i] = str(i)
+        else:
+            blackLabels[i] = str(i)
         # Colorize the currrent ant based on alarm strength
         colorMap.append(alarm_strength)
 
-    # Loop over interactions that occur in the active period
-    for index, row in interactions.iterrows():
-        # Extract..
-        source, dest = row['AlarmedFrom'], row['Alarmed']
-        if not row['Self-Excitation']:
-            # Add edges to the graph representing an interaction
-            G.add_edge(source, dest)
-
-    # Create a bounding box for the plot
-    #bbox = Bbox(np.array([[0,0],[11,11]]))
-
     pos = nx.get_node_attributes(G, 'pos')
     # Draw the graph on top of the background
-    nx.draw(G, pos, ax=ax, node_color=colorMap, node_size=25, cmap=plt.cm.Reds_r, with_labels=True, font_size=12)
+    nx.draw(G, pos, ax=ax, node_color=colorMap, node_size=70, cmap=plt.cm.Reds)
+    fsize = 14
+    nx.draw_networkx_labels(G, pos, ax=ax, labels=whiteLabels, font_size=fsize, font_color='w')
+    nx.draw_networkx_labels(G, pos, ax=ax, labels=blackLabels, font_size=fsize)
 
     # Save the frame-image and clear the plot
     plt.axis('off')

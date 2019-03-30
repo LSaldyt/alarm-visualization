@@ -20,7 +20,7 @@ def visualize():
             alert   = [x for x in alarmFrameData if x <= .74 and x > .35]
             calm    = [x for x in alarmFrameData if x <= .35]
             fig, ax = plt.subplots()
-            kwargs = dict(bins=30, kde=True, rug=True, ax=ax)
+            kwargs = dict(kde=True, rug=True, ax=ax)
             sns.distplot(alarmed, color=alarm_color, **kwargs)
             sns.distplot(alert,   color=alert_color, **kwargs)
             sns.distplot(calm,    color=calm_color,  **kwargs)
@@ -29,7 +29,8 @@ def visualize():
             ax.set_ylim((0, 61))
             ax.set_xlabel('Alarm Strength')
             ax.set_ylabel('Count')
-            #plt.show()
+            plt.show()
+
             plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
                     hspace = 0, wspace = 0)
             plt.margins(0, 0)

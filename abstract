@@ -43,6 +43,10 @@ def visualize():
 
             plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
                     hspace = 0, wspace = 0)
+            plt.axis('off')
+            plt.gca().xaxis.set_major_locator(NullLocator())
+            plt.gca().yaxis.set_major_locator(NullLocator())
+            plt.tight_layout()
 
             fsize = 14
             nx.draw(G, pos, node_color=colorMap, node_size=500, cmap=plt.cm.Reds_r)

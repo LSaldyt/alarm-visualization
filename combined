@@ -7,6 +7,7 @@ from matplotlib.ticker import NullLocator
 read_from = lambda d, frame : mpimg.imread('{}frames/{}.png'.format(d, str(frame).rjust(4, '0')))
 
 def clean(ax):
+    ax.axis('off')
     ax.margins(0, 0)
     ax.xaxis.set_major_locator(NullLocator())
     ax.yaxis.set_major_locator(NullLocator())
@@ -17,13 +18,13 @@ for frame in range(600):
         clean(a); clean(b); clean(c);
         img = read_from('distribution_', frame)
         a.imshow(img, aspect='equal')
-        a.axis('off')
+        clean(a);
         img = read_from('abstract_', frame)
         b.imshow(img, aspect='equal')
-        b.axis('off')
+        clean(b)
         img = read_from('', frame)
         c.imshow(img, aspect='equal')
-        c.axis('off')
+        clean(c)
         dpi = 400
         plt.axis('off')
         plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)

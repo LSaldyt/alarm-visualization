@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+
+from PIL import Image
+
+image_name = lambda d, frame : '{}frames/output_{}.png'.format(d, str(frame).rjust(4, '0'))
+
+for frame in range(600):
+    try:
+        imname = image_name('reference_', frame)
+        old_im = Image.open(imname)
+        w, h = old_im.size
+        new_im = old_im.crop((530, 0, w - 275, h))
+        #new_im.show()
+        imname = image_name('new_reference_', frame)
+        new_im.save(imname)
+        print(frame)
+    except KeyboardInterrupt:
+        raise
+    except Exception as e:
+        print(e)
+        pass

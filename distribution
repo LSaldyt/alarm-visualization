@@ -17,7 +17,7 @@ def visualize():
         alarmSecondData = alarmData[(alarmData.Frame < (second + 1) * 30) & (alarmData.Frame > (second) * 30)]
         for frame in range(29):
             alarmFrameData = list(alarmSecondData.iloc[frame])
-            alarmed = [x for x in alarmFrameData if x > .74]
+            alarmed = [x for x in alarmFrameData if x > .74  and x <= 1.0]
             alert   = [x for x in alarmFrameData if x <= .74 and x > .35]
             calm    = [x for x in alarmFrameData if x <= .35]
             fig, ax = plt.subplots()
@@ -26,7 +26,7 @@ def visualize():
             sns.distplot(alert,   color=alert_color, **kwargs)
             sns.distplot(calm,    color=calm_color,  **kwargs)
             ax.set_title('Alarm Distribution')
-            ax.set_xlim((0, 1))
+            #ax.set_xlim((0, 1))
             ax.set_ylim((0, 61))
             ax.set_xlabel('Alarm Strength')
             ax.set_ylabel('Count')

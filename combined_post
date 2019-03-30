@@ -11,7 +11,7 @@ for frame in range(600):
         old_size = old_im.size
         print(old_size)
         #old_im.show()
-        new_size = (old_size[0], 600)
+        new_size = (old_size[0], 800)
         new_im = Image.new("RGB", new_size)   ## luckily, this is already black!
         new_im.paste(old_im, (0, 0))
         #new_im.show()

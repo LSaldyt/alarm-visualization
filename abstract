@@ -31,9 +31,9 @@ def visualize():
             for i, strength in alarmedAnts:
                 #if i == 23 or (strength < 0.3 or strength > 0.9) and i not in {20, 12, 9}:
                 if strength > 0.5:
-                    blackLabels[i] = str(i)
-                else:
                     whiteLabels[i] = str(i)
+                else:
+                    blackLabels[i] = str(i)
                 G.add_node(i)
                 colorMap.append(strength)
             for index, row in interactions.iterrows():
@@ -49,7 +49,7 @@ def visualize():
             plt.tight_layout()
 
             fsize = 14
-            nx.draw(G, pos, node_color=colorMap, node_size=500, cmap=plt.cm.Reds_r)
+            nx.draw(G, pos, node_color=colorMap, node_size=500, cmap=plt.cm.Reds)
             nx.draw_networkx_labels(G, pos, labels=whiteLabels, font_size=fsize, font_color='w')
             nx.draw_networkx_labels(G, pos, labels=blackLabels, font_size=fsize)
             print(second * 30 + frame)

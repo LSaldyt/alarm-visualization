@@ -39,7 +39,7 @@ for index, row in alarmData.iterrows(): # Go over data by rows
     # Extract positional information for the current frame
     frameData = physicalData[frame][1] 
     # Load the background image for the frame and plot it
-    img = mpimg.imread('reference_frames/output_{}.png'.format(str(frame).rjust(4, '0')))
+    img = mpimg.imread('new_reference_frames/output_{}.png'.format(str(frame).rjust(4, '0')))
     ax.imshow(img, aspect='equal')
 
     whiteLabels = dict()
@@ -50,7 +50,7 @@ for index, row in alarmData.iterrows(): # Go over data by rows
         # Extract physical ant data
         antData = frameData[(frameData.id == i)]
         # Extract position
-        x = float(antData['locX'])
+        x = float(antData['locX']) - 530.0
         y = float(antData['locY'])
         # Add ant position to current graph
         G.add_node(i, pos=(x, y))

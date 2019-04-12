@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+from collections import defaultdict
+from pprint import pprint
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas
+def read_cumulative_counts():
+    propData = pandas.read_csv('propagation.csv')
+    counts = defaultdict(lambda : 0)
+    for index, row in propData.iterrows():
+        counts[row.TimeForAlarm] += 1
+    keys = list(range(max(counts.keys()) + 1))
+    cumulative_counts = []
+    for i in keys:
+        if i > 0:
+            counts[i] = counts[i - 1] + counts[i]
+        cumulative_counts.append(counts[i])
+    return cumulative_counts
+
+def plot_cumulative_counts():
+    counts = read_cumulative_counts()
+    plt.plot(counts)
+    plt.xlabel('Time (seconds)')
+    plt.ylabel('Cumulative number of physical contacts')
+    plt.title('Cumulative distribution of physical contacts over time')
+    #plt.show()
+    plt.savefig('cumulative_contacts.png')
+
+def main():
+    sns.set(font_scale=2.0)
+    plot_cumulative_counts()
+
+if __name__ == '__main__':
+    main()

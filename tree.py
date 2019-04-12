@@ -15,7 +15,7 @@ original = {17, 19, 25}
 original_color = (131/255, 1.0, 66/255)
 
 def create_graph():
-    propagationData = pandas.read_csv('UpdatedPropagationRecords.csv')
+    propagationData = pandas.read_csv('propagation.csv')
 
     G = nx.DiGraph()
     colors = []

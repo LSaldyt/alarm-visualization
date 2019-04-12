@@ -12,7 +12,7 @@ except ImportError:
     raise ImportError("This example needs Graphviz and either PyGraphviz or Pydot")
 
 import pandas
-propagationData = pandas.read_csv('UpdatedPropagationRecords.csv')
+propagationData = pandas.read_csv('propagation.csv')
 alarmData       = pandas.read_csv('smoothed_alarm_strengths.csv')
 
 def visualize():

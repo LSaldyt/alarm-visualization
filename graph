@@ -22,7 +22,7 @@ original = {17, 19, 25}
 alarmData       = pandas.read_csv('smoothed_alarm_strengths.csv')
 # Organize physical data by frames
 physicalData    = [item for item in pandas.read_csv('physical_data.csv').groupby('frames')]
-propagationData = pandas.read_csv('UpdatedPropagationRecords.csv')
+propagationData = pandas.read_csv('propagation.csv')
 
 # Iterate over alarmData (alarm_strengths.csv)
 for index, row in alarmData.iterrows(): # Go over data by rows

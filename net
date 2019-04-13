@@ -1,16 +1,35 @@
 #!/usr/bin/env python3
 from pprint import pprint
-import seaborn as sns
+from collections import defaultdict
+
 import matplotlib.pyplot as plt
+import seaborn           as sns
+import networkx          as nx
+
 import pandas
-import networkx as nx
+
+def read_alarm_data():
+    propData  = pandas.read_csv('propagation.csv')
+    alarmData = pandas.read_csv('smoothed_alarm_strengths.csv')
+    alarmTSeries = []
+    max_seconds = max(propData['TimeForAlarm'])
+    for second in range(1, max_seconds + 1):
+        antDict = dict()
+        alarmSecondData = alarmData[
+                          (alarmData.Frame < (second + 1) * 30) & 
+                          (alarmData.Frame > (second) * 30)].iloc[0]
+        for i in range(1, 62):
+            antDict[i] = alarmSecondData['V' + str(i)]
+        alarmTSeries.append(antDict)
+    return alarmTSeries
 
 def read_network():
     propData = pandas.read_csv('propagation.csv')
 
-    interactions = []
-    currentDict  = dict()
-    time_index  = 0
+    interactions     = []
+    currentDict      = dict()
+    time_index       = 0
+    seen             = defaultdict(lambda : 0)
 
     for index, row in propData.iterrows():
         time = row.TimeForAlarm
@@ -20,12 +39,57 @@ def read_network():
             time_index = time
             interactions.append(currentDict)
             currentDict = dict()
-        currentDict[row.AlarmedFrom] = row.Alarmed
-    return interactions
+        a, b = row.AlarmedFrom, row.Alarmed
+        seen[a] += 1; seen[b] += 1;
+        currentDict[a] = b
+    return seen, interactions
 
 def plot_network():
-    interactions = read_network()
+    seen, interactions = read_network()
+    alarmSeries        = read_alarm_data()
 
+    G = nx.Graph()
+    colorMap = []
+    x = 0
+    metaseen = set()
+    binary_color = True
+    order_type = 'interactions'
+    order_type = 'alarm_strength'
+    order_type = 'initial_alarm_strength'
+
+    if order_type == 'interactions':
+        orderer = lambda x : seen[x]
+    elif order_type == 'alarm_strength':
+        orderer = lambda x : sum(s[x] for s in alarmSeries)
+    elif order_type == 'initial_alarm_strength':
+        orderer = lambda x : alarmSeries[0][x]
+
+    ordering = [t[0] for t in 
+                     sorted(((i, orderer(i)) for i in range(1, 62)), 
+                            key=lambda t : t[1],
+                            reverse=True)]
+    for time_index, data in enumerate(interactions):
+        y = 0.0
+        lat = x * 61
+        for i in ordering:
+            G.add_node(lat + i, pos=(x * 50, y))
+            color = alarmSeries[time_index][i]
+            if binary_color:
+                color = 1.0 if color > 0.74 else 0.0
+            colorMap.append(color)
+            metaseen.add(lat + i)
+            y += 50
+        for k, v in data.items():
+            if (x + 1) * 61 + v < 1769:
+                G.add_edge(lat + k, (x + 1) * 61 + v)
+        x += 1
+        if x == 28:
+            break
+
+    pos = nx.get_node_attributes(G, 'pos')
+    plt.title('Alarm Signal Propagation')
+    nx.draw(G, pos, node_color=colorMap, cmap=plt.cm.Reds, node_size=25)
+    plt.show()
 
 def main():
     plot_network()

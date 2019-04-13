@@ -19,10 +19,10 @@ for frame in range(600):
         img = read_from('distribution_', frame)
         a.imshow(img, aspect='equal')
         clean(a);
-        img = read_from('abstract_', frame)
+        img = read_from('', frame)
         b.imshow(img, aspect='equal')
         clean(b)
-        img = read_from('', frame)
+        img = read_from('abstract_', frame)
         c.imshow(img, aspect='equal')
         clean(c)
         dpi = 400

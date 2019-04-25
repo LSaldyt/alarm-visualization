@@ -3,7 +3,7 @@ import pandas
 
 from pprint import pprint
 
-alarmData = pandas.read_csv('alarm_strengths.csv')
+alarmData = pandas.read_csv('raw_alarm_colony_45.csv')
 rows = list(alarmData.iterrows())
 
 width = 10
@@ -15,4 +15,4 @@ for i, row in rows:
     averages = sum(window) / len(window)
     alarmData.loc[i] = averages
 
-alarmData.to_csv('smoothed_alarm_strengths.csv')
+alarmData.to_csv('smoothed_control_alarm_strengths.csv')

@@ -23,8 +23,8 @@ def plot_cumulative_counts():
     plt.xlabel('Time (seconds)')
     plt.ylabel('Cumulative number of physical contacts')
     plt.title('Cumulative distribution of physical contacts over time')
-    #plt.show()
-    plt.savefig('cumulative_contacts.png')
+    plt.show()
+    #plt.savefig('cumulative_contacts.png')
 
 def main():
     sns.set(font_scale=2.0)

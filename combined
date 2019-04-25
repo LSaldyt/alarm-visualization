@@ -22,7 +22,7 @@ for frame in range(600):
         img = read_from('', frame)
         b.imshow(img, aspect='equal')
         clean(b)
-        img = read_from('abstract_', frame)
+        img = read_from('abstract_', frame % 30)
         c.imshow(img, aspect='equal')
         clean(c)
         dpi = 400

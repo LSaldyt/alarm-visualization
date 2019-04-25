@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+import pandas
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+def to_populations(data):
+    populations = []
+    window      = []
+    for index, row in data.iterrows():
+        alarmed, alert, calm = 0, 0, 0
+        for i in range(1, 62):
+            strength = row['V' + str(i)]
+            if strength > 0.749:
+                alarmed += 1
+            elif strength > 0.305:
+                alert += 1
+            else:
+                calm += 1
+        window.append((alarmed, alert, calm))
+        if index > 0 and index % 60 == 0:
+            average = lambda x : sum(x) / len(window)
+            populations.append(tuple(map(average, zip(*window))))
+            del window[:]
+    return populations
+
+def plot_populations(ax, populations, leftmost=True):
+    alarmed, alert,  calm = zip(*populations)
+    ax.plot(alarmed, label='alarmed', color='red')
+    ax.plot(alert,   label='alert',   color='orange')
+    ax.plot(calm,    label='calm',    color='blue')
+    if leftmost:
+        ax.set_ylabel('Number of ants')
+    ax.set_xlabel('Time (seconds)')
+    ax.legend()
+    return ax
+
+def plot():
+    sns.set(style='whitegrid', font_scale=1.5)
+
+    treatment = pandas.read_csv('smoothed_alarm_strengths.csv')
+    control   = pandas.read_csv('raw_alarm_colony_45.csv')
+
+    f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
+
+    plot_populations(ax1, to_populations(treatment))
+    ax1.set_title('Treatment')
+    plot_populations(ax2, to_populations(control), leftmost=False)
+    ax2.set_title('Control')
+    plt.suptitle('Population Comparison for Treatment vs Control')
+    plt.tight_layout()
+    plt.show()
+
+plot()
+

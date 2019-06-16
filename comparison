@@ -31,7 +31,6 @@ def plot_populations(ax, populations, leftmost=True):
     if leftmost:
         ax.set_ylabel('Number of ants')
     ax.set_xlabel('Time (seconds)')
-    ax.legend()
     return ax
 
 def plot():

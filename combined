@@ -12,33 +12,34 @@ def clean(ax):
     ax.xaxis.set_major_locator(NullLocator())
     ax.yaxis.set_major_locator(NullLocator())
 
-for frame in range(600):
-    try:
-        fig, (a, b, c) = plt.subplots(nrows=1, ncols=3)
-        clean(a); clean(b); clean(c);
-        img = read_from('distribution_', frame)
-        a.imshow(img, aspect='equal')
-        clean(a);
-        img = read_from('', frame)
-        b.imshow(img, aspect='equal')
-        clean(b)
-        img = read_from('abstract_', frame % 30)
-        c.imshow(img, aspect='equal')
-        clean(c)
-        dpi = 400
-        plt.axis('off')
-        plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
-        plt.margins(0, 0)
-        plt.gca().xaxis.set_major_locator(NullLocator())
-        plt.gca().yaxis.set_major_locator(NullLocator())
-        plt.tight_layout()
-        plt.savefig('combined_frames/{}.png'.format(str(frame).rjust(4, '0')), dpi=dpi, 
-                bbox_inches='tight', 
-                pad_inches=0)
-        plt.clf()
-        print(frame)
-    except KeyboardInterrupt:
-        raise
-    except Exception as e:
-        print(e)
-        pass
+for frame in range(1700):
+    if frame > 913:
+        try:
+            fig, (a, b, c) = plt.subplots(nrows=1, ncols=3)
+            clean(a); clean(b); clean(c);
+            img = read_from('distribution_', frame)
+            a.imshow(img, aspect='equal')
+            clean(a);
+            img = read_from('', frame)
+            b.imshow(img, aspect='equal')
+            clean(b)
+            img = read_from('abstract_', frame)
+            c.imshow(img, aspect='equal')
+            clean(c)
+            dpi = 400
+            plt.axis('off')
+            plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
+            plt.margins(0, 0)
+            plt.gca().xaxis.set_major_locator(NullLocator())
+            plt.gca().yaxis.set_major_locator(NullLocator())
+            plt.tight_layout()
+            plt.savefig('combined_frames/{}.png'.format(str(frame).rjust(4, '0')), dpi=dpi, 
+                    bbox_inches='tight', 
+                    pad_inches=0)
+            plt.clf()
+            print(frame)
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            print(e)
+            pass

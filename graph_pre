@@ -4,7 +4,7 @@ from PIL import Image
 
 image_name = lambda d, frame : '{}frames/output_{}.png'.format(d, str(frame).rjust(4, '0'))
 
-for frame in range(600):
+for frame in range(600, 1701):
     try:
         imname = image_name('reference_', frame)
         old_im = Image.open(imname)

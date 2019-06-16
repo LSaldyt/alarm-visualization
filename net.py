@@ -48,78 +48,79 @@ def read_network():
 def plot_network(interval=None, filename=None):
     seen, interactions = read_network()
     alarmSeries        = read_alarm_data()
+    for time_max in range(len(interactions)):
+        G = nx.Graph()
+        colorMap = []
+        x = 0
+        label = True
+        metaseen = set()
+        exclude_passive = False
+        binary_color = False
+        order_type = 'interactions'
+        order_type = 'vanilla'
+        order_type = 'alarm_strength'
+        order_type = 'initial_alarm_strength'
 
-    G = nx.Graph()
-    colorMap = []
-    x = 0
-    label = True
-    metaseen = set()
-    exclude_passive = False
-    binary_color = False
-    order_type = 'interactions'
-    order_type = 'alarm_strength'
-    order_type = 'initial_alarm_strength'
-    order_type = 'vanilla'
+        if order_type == 'vanilla':
+            orderer = lambda x : x
+        elif order_type == 'interactions':
+            orderer = lambda x : seen[x]
+        elif order_type == 'alarm_strength':
+            orderer = lambda x : sum(s[x] for s in alarmSeries)
+        elif order_type == 'initial_alarm_strength':
+            orderer = lambda x : alarmSeries[0][x]
 
-    if order_type == 'vanilla':
-        orderer = lambda x : x
-    elif order_type == 'interactions':
-        orderer = lambda x : seen[x]
-    elif order_type == 'alarm_strength':
-        orderer = lambda x : sum(s[x] for s in alarmSeries)
-    elif order_type == 'initial_alarm_strength':
-        orderer = lambda x : alarmSeries[0][x]
+        ordering = [t[0] for t in
+                         sorted(((i, orderer(i)) for i in range(1, 62)),
+                                key=lambda t : t[1],
+                                reverse=True)]
 
-    ordering = [t[0] for t in
-                     sorted(((i, orderer(i)) for i in range(1, 62)),
-                            key=lambda t : t[1],
-                            reverse=True)]
+        blackLabels = dict()
 
-    blackLabels = dict()
+        for time_index, data in enumerate(interactions):
+            if time_index < time_max:
+                if interval is None or time_index in interval:
+                    y = 0.0
+                    lat = x * 61
+                    for i in ordering:
+                        if not exclude_passive or seen[i] > 0:
+                            #print(lat + i)
+                            G.add_node(lat + i, pos=(x * 50, y))
+                            color = alarmSeries[time_index][i]
+                            if binary_color:
+                                color = 1.0 if color > 0.74 else 0.5
+                            blackLabels[lat + i] = str(i)
+                            colorMap.append(color)
+                            metaseen.add(lat + i)
+                            y += 100
+                    for k, v in data.items():
+                        if (interval is None and (x + 1) * 61 + v < 1769) or \
+                           ((x + 1) * 61 + v < min(176, (max(interval) - 2) * 61)):
+                               if (x + 1) * 61 + v == 220:
+                                   print((x + 1) * 61 + v)
+                                   1/0
+                               G.add_edge(lat + k, (x + 1) * 61 + v)
+                    x += 1
+                    if x == 28 and interval is None:
+                        break
 
-    for time_index, data in enumerate(interactions):
-        if interval is None or time_index in interval:
-            y = 0.0
-            lat = x * 61
-            for i in ordering:
-                if not exclude_passive or seen[i] > 0:
-                    #print(lat + i)
-                    G.add_node(lat + i, pos=(x * 50, y))
-                    color = alarmSeries[time_index][i]
-                    if binary_color:
-                        color = 1.0 if color > 0.74 else 0.5
-                    blackLabels[lat + i] = str(i)
-                    colorMap.append(color)
-                    metaseen.add(lat + i)
-                    y += 100
-            for k, v in data.items():
-                if (interval is None and (x + 1) * 61 + v < 1769) or \
-                   ((x + 1) * 61 + v < min(176, (max(interval) - 2) * 61)):
-                       if (x + 1) * 61 + v == 220:
-                           print((x + 1) * 61 + v)
-                           1/0
-                       G.add_edge(lat + k, (x + 1) * 61 + v)
-            x += 1
-            if x == 28 and interval is None:
-                break
-
-    fsize = 5
-    pos = nx.get_node_attributes(G, 'pos')
-    nx.draw(G, pos, node_color=colorMap, cmap=plt.cm.Reds, node_size=10)
-    if label:
-        pos = {k : (x - 1.5, y) for k, (x, y) in pos.items()}
-        nx.draw_networkx_labels(G, pos, labels=blackLabels, font_size=fsize)
-    plt.axis('off')
-    plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
-    hspace = 0, wspace = 0)
-    #plt.margins(0, 0)
-    plt.gca().xaxis.set_major_locator(NullLocator())
-    plt.gca().yaxis.set_major_locator(NullLocator())
-    if filename is not None:
-        plt.savefig(filename, dpi=300)
-        plt.clf()
-    else:
-        plt.show()
+        fsize = 5
+        pos = nx.get_node_attributes(G, 'pos')
+        nx.draw(G, pos, node_color=colorMap, cmap=plt.cm.Reds, node_size=10)
+        if label:
+            pos = {k : (x - 1.5, y) for k, (x, y) in pos.items()}
+            nx.draw_networkx_labels(G, pos, labels=blackLabels, font_size=fsize)
+        plt.axis('off')
+        plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
+        hspace = 0, wspace = 0)
+        #plt.margins(0, 0)
+        plt.gca().xaxis.set_major_locator(NullLocator())
+        plt.gca().yaxis.set_major_locator(NullLocator())
+        if filename is not None:
+            plt.savefig(filename, dpi=300)
+            plt.clf()
+        else:
+            plt.show()
 
 def main():
     plot_network()

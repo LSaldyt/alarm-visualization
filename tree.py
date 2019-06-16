@@ -59,10 +59,10 @@ def create_graph():
             else:
                 add(source, time_color)
             add(dest,   time_color)
-            if dest not in received:
-                G.add_edge(source, dest)
-                edge_labels[(source, dest)] = str(time) + 's'
-            received.add(dest)
+            #if dest not in received:
+            G.add_edge(source, dest)
+            edge_labels[(source, dest)] = str(time) + 's'
+            #received.add(dest)
         elif source not in received:
             if source in original:
                 add(source, original_color, label=(str(source) + '!'))

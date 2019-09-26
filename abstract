@@ -22,34 +22,38 @@ alarmData       = pandas.read_csv('smoothed_alarm_strengths.csv')
 def visualize():
     # dot, neato, fdp, sfdp, twopi, circo: see https://www.graphviz.org/
     pos = graphviz_layout(original_tree()[0], prog='dot', args='')
-    for second in range(35, 163):
+    G = nx.DiGraph()
+    for i in range(1, 62):
+        if i not in passive:
+            G.add_node(i)
+    for second in range(163):
         interactions = propagationData[(propagationData.TimeForAlarm == second)]
         alarmSecondData = alarmData[(alarmData.Frame < (second + 1) * 30) & (alarmData.Frame > (second) * 30)]
         for frame in range(29):
-
             alarmFrameData = alarmSecondData.iloc[frame]
-            G = nx.DiGraph()
             colorMap = []
             whiteLabels = dict()
             blackLabels = dict()
-            alarmedAnts = [(i, alarmFrameData['V' + str(i)]) for i in range(1, 62)]
-            alarmedAnts = sorted(alarmedAnts, key=lambda t : t[1])
+            alarmedAnts = [(i, alarmFrameData['V' + str(i)]) for i in range(1, 62) if i not in passive]
+            #alarmedAnts = sorted(alarmedAnts, key=lambda t : t[1]) Why???
             for i, strength in alarmedAnts:
                 if i not in passive:
-                    G.add_node(i)
                     colorMap.append(strength)
+                    #blackLabels[i] = str(i)
+                    if strength > 0.5:
+                        #colorMap.append('black')
+                        blackLabels[i] = str(i)
+                    else:
+                        whiteLabels[i] = str(i) 
+                        #colorMap.append('white')
+                    #blackLabels[i] = str(i) + ', ' + str(round(strength, 2))
             for index, row in interactions.iterrows():
                 source, dest = row['AlarmedFrom'], row['Alarmed']
-                assert source not in passive, str(source)
-                assert dest not in passive, str(dest)
-                if not row['Self-Excitation']:
-                    G.add_edge(source, dest)
-            for i, strength in alarmedAnts:
-                if i not in passive:
-                    if strength > 0.5:
-                        whiteLabels[i] = str(i)
-                    else:
-                        blackLabels[i] = str(i)
+                if source in passive or dest in passive:
+                    continue
+                else:
+                    if not row['Self-Excitation']:
+                        G.add_edge(source, dest)
 
             plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
                     hspace = 0, wspace = 0)
@@ -59,7 +63,7 @@ def visualize():
             plt.tight_layout()
 
             fsize = 12
-            nx.draw(G, pos, node_color=colorMap, node_size=300, cmap=plt.cm.Reds)
+            nx.draw(G, pos, node_color=colorMap, node_size=300, cmap=plt.cm.Reds_r, with_labels=False)
             nx.draw_networkx_labels(G, pos, labels=whiteLabels, font_size=fsize, font_color='w')
             nx.draw_networkx_labels(G, pos, labels=blackLabels, font_size=fsize, font_color='k')
             print(second * 30 + frame)

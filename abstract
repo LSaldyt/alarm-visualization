@@ -23,51 +23,57 @@ def visualize():
     # dot, neato, fdp, sfdp, twopi, circo: see https://www.graphviz.org/
     pos = graphviz_layout(original_tree()[0], prog='dot', args='')
     G = nx.DiGraph()
+    framedatas = []
     for i in range(1, 62):
         if i not in passive:
             G.add_node(i)
-    for second in range(163):
+    for second in range(0, 163):
         interactions = propagationData[(propagationData.TimeForAlarm == second)]
         alarmSecondData = alarmData[(alarmData.Frame < (second + 1) * 30) & (alarmData.Frame > (second) * 30)]
         for frame in range(29):
-            alarmFrameData = alarmSecondData.iloc[frame]
-            colorMap = []
-            whiteLabels = dict()
-            blackLabels = dict()
-            alarmedAnts = [(i, alarmFrameData['V' + str(i)]) for i in range(1, 62) if i not in passive]
-            #alarmedAnts = sorted(alarmedAnts, key=lambda t : t[1]) Why???
-            for i, strength in alarmedAnts:
-                if i not in passive:
-                    colorMap.append(strength)
-                    #blackLabels[i] = str(i)
-                    if strength > 0.5:
-                        #colorMap.append('black')
-                        blackLabels[i] = str(i)
+            if second * 30 + frame < 4827:
+                alarmFrameData = alarmSecondData.iloc[frame]
+                colorMap = []
+                edgelist = []
+                whiteLabels = dict()
+                blackLabels = dict()
+                alarmedAnts = [(i, alarmFrameData['V' + str(i)]) for i in range(1, 62) if i not in passive]
+                #alarmedAnts = sorted(alarmedAnts, key=lambda t : t[1]) Why???
+                for i, strength in alarmedAnts:
+                    #strength = 1.0 - strength
+                    if i not in passive:
+                        colorMap.append(strength)
+                        if strength < 0.5:
+                            blackLabels[i] = str(i)
+                        else:
+                            whiteLabels[i] = str(i) 
+                for index, row in interactions.iterrows():
+                    source, dest = row['AlarmedFrom'], row['Alarmed']
+                    if source in passive or dest in passive:
+                        continue
                     else:
-                        whiteLabels[i] = str(i) 
-                        #colorMap.append('white')
-                    #blackLabels[i] = str(i) + ', ' + str(round(strength, 2))
-            for index, row in interactions.iterrows():
-                source, dest = row['AlarmedFrom'], row['Alarmed']
-                if source in passive or dest in passive:
-                    continue
-                else:
-                    if not row['Self-Excitation']:
-                        G.add_edge(source, dest)
+                        if not row['Self-Excitation']:
+                            G.add_edge(source, dest)
+                            edgelist.append((source, dest))
 
-            plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
-                    hspace = 0, wspace = 0)
-            plt.axis('off')
-            plt.gca().xaxis.set_major_locator(NullLocator())
-            plt.gca().yaxis.set_major_locator(NullLocator())
-            plt.tight_layout()
+                print('Calculating {}'.format(second * 30 + frame))
+                framedatas.append((edgelist, whiteLabels, blackLabels, second * 30 + frame, colorMap))
+    for (edgelist, whiteLabels, blackLabels, i, colorMap) in framedatas:
+        print('Rendering {}'.format(i))
+        plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0,
+                hspace = 0, wspace = 0)
+        plt.axis('off')
+        plt.gca().xaxis.set_major_locator(NullLocator())
+        plt.gca().yaxis.set_major_locator(NullLocator())
+        plt.tight_layout()
 
-            fsize = 12
-            nx.draw(G, pos, node_color=colorMap, node_size=300, cmap=plt.cm.Reds_r, with_labels=False)
-            nx.draw_networkx_labels(G, pos, labels=whiteLabels, font_size=fsize, font_color='w')
-            nx.draw_networkx_labels(G, pos, labels=blackLabels, font_size=fsize, font_color='k')
-            print(second * 30 + frame)
-            plt.savefig('abstract_frames/{}.png'.format(str(second * 30 + frame).rjust(4, '0')), dpi=300, bbox_inches='tight')
-            plt.clf()
+        fsize = 12
+        nx.draw_networkx_nodes(G, pos, node_color=colorMap, node_size=300, cmap=plt.cm.Reds, with_labels=False)
+        nx.draw_networkx_edges(G, pos, edgelist=edgelist, with_labels=False)
+        nx.draw_networkx_edges(G, pos, edgelist=[e for e in G.edges() if e not in edgelist], with_labels=False, alpha=0.0)
+        nx.draw_networkx_labels(G, pos, labels=whiteLabels, font_size=fsize, font_color='w')
+        nx.draw_networkx_labels(G, pos, labels=blackLabels, font_size=fsize, font_color='k')
+        plt.savefig('abstract_frames/{}.png'.format(str(i).rjust(4, '0')), dpi=300, bbox_inches='tight')
+        plt.clf()
 
 visualize()

@@ -13,7 +13,6 @@ def clean(ax):
     ax.yaxis.set_major_locator(NullLocator())
 
 for frame in range(1700):
-    #if frame > 1030:
     try:
         fig, (a, b, c) = plt.subplots(nrows=1, ncols=3)
         clean(a); clean(b); clean(c);

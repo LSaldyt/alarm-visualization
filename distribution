@@ -17,14 +17,14 @@ def visualize():
     for second in range(163):
         alarmSecondData = alarmData[(alarmData.Frame < (second + 1) * 30) & (alarmData.Frame > (second) * 30)]
         for frame in range(29):
-            if second * 30 + frame > 1305:
+            if second * 30 + frame >= 0:
                 alarmFrameData = list(alarmSecondData.iloc[frame])
                 alarmed = [x for x in alarmFrameData if x > .74  and x <= 1.0]
                 calm    = [x for x in alarmFrameData if x <= .74]
                 fig, ax = plt.subplots()
                 kwargs = dict(kde=False, rug=True, ax=ax)
-                sns.distplot(alarmed, color=alarm_color, **kwargs, bins=3)
-                sns.distplot(calm,    color=calm_color,  **kwargs, bins=7)
+                sns.distplot(alarmed, color=alarm_color, **kwargs, bins=[0.74, 0.82, 0.91, 1.0])#3, )
+                sns.distplot(calm,    color=calm_color,  **kwargs, bins=[0.0, 0.105, 0.21, 0.315, 0.42, 0.525, 0.63, 0.74])#7, )
                 ax.set_title('Alarm Distribution')
                 ax.set_xlim((0, 1))
                 ax.set_ylim((0, 61))

@@ -17,7 +17,7 @@ def visualize():
     for second in range(163):
         alarmSecondData = alarmData[(alarmData.Frame < (second + 1) * 30) & (alarmData.Frame > (second) * 30)]
         for frame in range(29):
-            if second * 30 + frame >= 0:
+            if second * 30 + frame >= 848:
                 alarmFrameData = list(alarmSecondData.iloc[frame])
                 alarmed = [x for x in alarmFrameData if x > .74  and x <= 1.0]
                 calm    = [x for x in alarmFrameData if x <= .74]
